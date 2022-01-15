@@ -14,12 +14,10 @@ public class MainMenuService {
 
     public SendMessage getMainMenuMessage(final String chatId, final String textMessage) {
         final ReplyKeyboardMarkup replyKeyboardMarkup = getMainMenuKeyboard();
-        final SendMessage mainMenuMessage = createMessageWithKeyboard(chatId, textMessage, replyKeyboardMarkup);
-        return mainMenuMessage;
+        return createMessageWithKeyboard(chatId, textMessage, replyKeyboardMarkup);
     }
 
     private ReplyKeyboardMarkup getMainMenuKeyboard() {
-
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);

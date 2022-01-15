@@ -1,6 +1,6 @@
 package ru.telegram.shoppinglist.bot.botapi;
 
-import lombok.extern.slf4j.Slf4j;
+import it.rebase.rebot.api.emojis.Emoji;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -8,29 +8,31 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.telegram.shoppinglist.bot.botapi.handlers.DataInputHandler;
+import ru.telegram.shoppinglist.bot.botapi.handlers.fillingprofiles.UserProfileData;
 import ru.telegram.shoppinglist.bot.cache.UserDataCache;
-import ru.telegram.shoppinglist.bot.service.MainMenuService;
+
+import java.util.List;
 
 @Component
 public class TelegramFacade {
     private BotStateContext botStateContext;
     private UserDataCache userDataCache;
-    private MainMenuService mainMenuService;
+    private DataInputHandler dataInputHandler;
 
-    public TelegramFacade(BotStateContext botStateContext, UserDataCache userDataCache, MainMenuService mainMenuService) {
+    public TelegramFacade(BotStateContext botStateContext, UserDataCache userDataCache,
+                          DataInputHandler dataInputHandler) {
         this.botStateContext = botStateContext;
         this.userDataCache = userDataCache;
-        this.mainMenuService = mainMenuService;
+        this.dataInputHandler = dataInputHandler;
     }
 
     public BotApiMethod<?> handleUpdate(Update update) {
         SendMessage replyMessage = null;
-
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             return processCallbackQuery(callbackQuery);
         }
-
         Message message = update.getMessage();
         if (message != null && message.hasText()) {
             replyMessage = handleInputMessage(message);
@@ -59,7 +61,6 @@ public class TelegramFacade {
                 botState = userDataCache.getUserCurrentBotState(userId);
                 break;
         }
-
         userDataCache.setUserCurrentBotState(userId, botState);
         replyMessage = botStateContext.processInputMessage(botState, message);
 
@@ -69,16 +70,17 @@ public class TelegramFacade {
     private BotApiMethod<?> processCallbackQuery(CallbackQuery buttonQuery) {
         final String chatId = buttonQuery.getMessage().getChatId().toString();
         final long userId = buttonQuery.getFrom().getId();
-        BotApiMethod<?> callBackAnswer = mainMenuService.getMainMenuMessage(chatId,
-                "Воспользуйтесь главным меню");
-        return callBackAnswer;
-    }
+        String message = buttonQuery.getData().substring(7);
+        UserProfileData userProfileData = userDataCache.getUserProfileData(userId);
 
-    private AnswerCallbackQuery sendAnswerCallbackQuery(String text, boolean alert, CallbackQuery callbackquery) {
-        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
-        answerCallbackQuery.setCallbackQueryId(callbackquery.getId());
-        answerCallbackQuery.setShowAlert(alert);
-        answerCallbackQuery.setText(text);
-        return answerCallbackQuery;
+        List<String> list = userProfileData.getListOfGoods();
+        list.remove(message);
+        list.add(message.substring(0, message.length() - 2) + " " + Emoji.WHITE_HEAVY_CHECK_MARK);
+        userProfileData.setListOfGoods(list);
+
+        SendMessage replyToUser = new SendMessage(chatId, "Список покупок:");
+        replyToUser.setReplyMarkup(dataInputHandler.getButtonsMarkup(userProfileData.getListOfGoods()));
+        userDataCache.setUserCurrentBotState(userId, BotState.DATA_INPUT);
+        return replyToUser;
     }
 }

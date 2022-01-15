@@ -25,6 +25,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     implementation 'org.telegram:telegrambots:5.6.0'
+    implementation 'it.rebase:rebot-telegram-api-emojis:0.3'
 }
 
 test {

@@ -35,7 +35,6 @@ public class ShoppingListBot extends TelegramWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        BotApiMethod<?> replyToUser = telegramFacade.handleUpdate(update);
-        return replyToUser;
+        return telegramFacade.handleUpdate(update);
     }
 }

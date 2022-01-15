@@ -1,5 +1,6 @@
 package ru.telegram.shoppinglist.bot.botapi.handlers;
 
+import it.rebase.rebot.api.emojis.Emoji;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -9,7 +10,7 @@ import ru.telegram.shoppinglist.bot.botapi.BotState;
 import ru.telegram.shoppinglist.bot.botapi.InputMessageHandler;
 import ru.telegram.shoppinglist.bot.botapi.handlers.fillingprofiles.UserProfileData;
 import ru.telegram.shoppinglist.bot.cache.UserDataCache;
-import ru.telegram.shoppinglist.bot.service.ReplyMessageService;
+import ru.telegram.shoppinglist.bot.service.MainMenuService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +18,11 @@ import java.util.List;
 @Component
 public class DataInputHandler implements InputMessageHandler {
     private UserDataCache userDataCache;
-    private ReplyMessageService replyMessageService;
+    private MainMenuService mainMenuService;
 
-    public DataInputHandler(UserDataCache userDataCache, ReplyMessageService replyMessageService) {
+    public DataInputHandler(UserDataCache userDataCache, MainMenuService mainMenuService) {
         this.userDataCache = userDataCache;
-        this.replyMessageService = replyMessageService;
+        this.mainMenuService = mainMenuService;
     }
 
     @Override
@@ -46,19 +47,17 @@ public class DataInputHandler implements InputMessageHandler {
         SendMessage replyToUser = null;
 
         if (botState.equals(BotState.EMPTY_LIST)) {
-            replyToUser = new SendMessage(chatId, "Начните вводить продукты");
+            replyToUser = mainMenuService.getMainMenuMessage(chatId,"Начните вводить продукты");
             userDataCache.setUserCurrentBotState(userId, BotState.DATA_INPUT);
         }
 
         if (botState.equals(BotState.DATA_INPUT)) {
-
             list = userProfileData.getListOfGoods();
-            list.add(goodsToBuy);
+            list.add(goodsToBuy + " " + Emoji.CROSS_MARK);
             userProfileData.setListOfGoods(list);
 
             replyToUser = new SendMessage(chatId, "Список покупок: \n");
             replyToUser.setReplyMarkup(getButtonsMarkup(userProfileData.getListOfGoods()));
-
         }
 
         if (botState.equals(BotState.CLEAR_LIST)) {
@@ -75,24 +74,21 @@ public class DataInputHandler implements InputMessageHandler {
                 list.remove(list.size() - 1);
                 userProfileData.setListOfGoods(list);
                 replyToUser = new SendMessage(chatId, "Последняя позиция удалена");
-                userDataCache.setUserCurrentBotState(userId, BotState.DATA_INPUT);
             } else {
                 replyToUser = new SendMessage(chatId, "Список покупок пуст");
-                userDataCache.setUserCurrentBotState(userId, BotState.DATA_INPUT);
             }
+            userDataCache.setUserCurrentBotState(userId, BotState.DATA_INPUT);
         }
 
         userDataCache.saveUserProfileData(userId, userProfileData);
         return replyToUser;
     }
 
-    private InlineKeyboardMarkup getButtonsMarkup(List<String> textMessage) {
+    public InlineKeyboardMarkup getButtonsMarkup(List<String> textMessage) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton inlineKeyboardButton;
-
         List<InlineKeyboardButton> keyboardButtonsRow;
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-
         for (String s : textMessage) {
             inlineKeyboardButton = new InlineKeyboardButton();
             keyboardButtonsRow = new ArrayList<>();
