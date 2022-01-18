@@ -63,7 +63,6 @@ public class TelegramFacade {
         }
         userDataCache.setUserCurrentBotState(userId, botState);
         replyMessage = botStateContext.processInputMessage(botState, message);
-
         return replyMessage;
     }
 
@@ -72,15 +71,29 @@ public class TelegramFacade {
         final long userId = buttonQuery.getFrom().getId();
         String message = buttonQuery.getData().substring(7);
         UserProfileData userProfileData = userDataCache.getUserProfileData(userId);
-
         List<String> list = userProfileData.getListOfGoods();
-        list.remove(message);
-        list.add(message.substring(0, message.length() - 2) + " " + Emoji.WHITE_HEAVY_CHECK_MARK);
-        userProfileData.setListOfGoods(list);
+        BotApiMethod<?> reply;
 
-        SendMessage replyToUser = new SendMessage(chatId, "Список покупок:");
-        replyToUser.setReplyMarkup(dataInputHandler.getButtonsMarkup(userProfileData.getListOfGoods()));
-        userDataCache.setUserCurrentBotState(userId, BotState.DATA_INPUT);
-        return replyToUser;
+        if (list != null & list.contains(message) &
+                !message.substring(message.length() - 1).equals(Emoji.WHITE_HEAVY_CHECK_MARK.toString())) {
+
+            list.remove(message);
+            list.add(0, message.substring(0, message.length() - 2) + " " + Emoji.WHITE_HEAVY_CHECK_MARK);
+            userProfileData.setListOfGoods(list);
+            SendMessage replyToUser = new SendMessage(chatId, "Список покупок:");
+            replyToUser.setReplyMarkup(dataInputHandler.getButtonsMarkup(userProfileData.getListOfGoods()));
+            return replyToUser;
+        } else {
+            reply = sendAnswerCallbackQuery("Уже отмечено", false, buttonQuery);
+        }
+        return reply;
+    }
+
+    private AnswerCallbackQuery sendAnswerCallbackQuery(String text, boolean alert, CallbackQuery callbackquery) {
+        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+        answerCallbackQuery.setCallbackQueryId(callbackquery.getId());
+        answerCallbackQuery.setShowAlert(alert);
+        answerCallbackQuery.setText(text);
+        return answerCallbackQuery;
     }
 }
