@@ -22,7 +22,7 @@ public class TelegramFacade {
         this.callbackQueryHandler = callbackQueryHandler;
     }
 
-    public BotApiMethod<?> handleUpdate(Update update) { // Обработчик запросов
+    public BotApiMethod<?> handleUpdate(Update update) { // Обработчик изменений данных
         SendMessage replyMessage = null;
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
@@ -35,7 +35,7 @@ public class TelegramFacade {
         return replyMessage;
     }
 
-    private SendMessage handleInputMessage(Message message) {
+    private SendMessage handleInputMessage(Message message) { // Обработчик текста
         String inputMessage = message.getText();
         long userId = message.getFrom().getId();
         BotState botState;
