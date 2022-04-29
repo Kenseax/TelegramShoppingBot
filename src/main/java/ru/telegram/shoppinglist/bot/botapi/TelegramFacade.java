@@ -16,13 +16,13 @@ public class TelegramFacade {
     private CallbackQueryHandler callbackQueryHandler;
 
     public TelegramFacade(BotStateContext botStateContext, UserDataCache userDataCache,
-                          CallbackQueryHandler callbackQueryHandler) {
+                          CallbackQueryHandler callbackQueryHandler) { // Присваевание переменных
         this.botStateContext = botStateContext;
         this.userDataCache = userDataCache;
         this.callbackQueryHandler = callbackQueryHandler;
     }
 
-    public BotApiMethod<?> handleUpdate(Update update) {
+    public BotApiMethod<?> handleUpdate(Update update) { // Обработчик запросов
         SendMessage replyMessage = null;
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
