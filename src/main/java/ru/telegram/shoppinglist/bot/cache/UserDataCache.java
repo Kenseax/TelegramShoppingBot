@@ -17,6 +17,7 @@ public class UserDataCache implements DataCache {
         usersBotState.put(userId, botState);
     }
 
+    /** Получение состояния бота */
     @Override
     public BotState getUserCurrentBotState(long userId) {
         BotState botState = usersBotState.get(userId);
@@ -26,6 +27,7 @@ public class UserDataCache implements DataCache {
         return botState;
     }
 
+    /** Получение данных о профиле */
     @Override
     public UserProfileData getUserProfileData(long userId) {
         UserProfileData userProfileData = usersProfileData.get(userId);
