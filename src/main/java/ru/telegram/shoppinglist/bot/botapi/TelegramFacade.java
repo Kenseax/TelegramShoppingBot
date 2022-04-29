@@ -47,7 +47,7 @@ public class TelegramFacade {
                 botState = BotState.EMPTY_LIST;
                 break;
             case "Очистить список":
-                botState = BotState.CLEAR_LIST;
+                botState = BotState.CLEAR_LIST;  // Разобраться с логикой состояния бота
                 break;
             case "Удалить последнюю позицию":
                 botState = BotState.DELETE_LAST;
