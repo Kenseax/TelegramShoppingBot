@@ -11,9 +11,9 @@ import ru.telegram.shoppinglist.bot.cache.UserDataCache;
 
 @Component
 public class TelegramFacade {
-    private BotStateContext botStateContext;
-    private UserDataCache userDataCache;
-    private CallbackQueryHandler callbackQueryHandler;
+    private final BotStateContext botStateContext;
+    private final UserDataCache userDataCache;
+    private final CallbackQueryHandler callbackQueryHandler;
 
     public TelegramFacade(BotStateContext botStateContext, UserDataCache userDataCache,
                           CallbackQueryHandler callbackQueryHandler) { // Присваевание переменных

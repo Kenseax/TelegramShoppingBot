@@ -13,8 +13,8 @@ import java.util.List;
 
 @Component
 public class CallbackQueryHandler {
-    private UserDataCache userDataCache;
-    private DataInputHandler dataInputHandler;
+    private final UserDataCache userDataCache;
+    private final DataInputHandler dataInputHandler;
 
     public CallbackQueryHandler(UserDataCache userDataCache, DataInputHandler dataInputHandler) {
         this.userDataCache = userDataCache;
@@ -29,11 +29,11 @@ public class CallbackQueryHandler {
         List<String> list = userProfileData.getListOfGoods();
         BotApiMethod<?> reply;
 
-        if (list != null & list.contains(message) &
+        if (list != null && list.contains(message) &&
                 !message.substring(message.length() - 1).equals(Emoji.WHITE_HEAVY_CHECK_MARK.toString())) {
 
             list.remove(message);
-            list.add(0, message.substring(0, message.length() - 2) + " " + Emoji.WHITE_HEAVY_CHECK_MARK);
+            list.add(list.size() - 1, message.substring(0, message.length() - 2) + " " + Emoji.WHITE_HEAVY_CHECK_MARK);
             userProfileData.setListOfGoods(list);
             SendMessage replyToUser = new SendMessage(chatId, "Список покупок:");
             replyToUser.setReplyMarkup(dataInputHandler.getButtonsMarkup(userProfileData.getListOfGoods()));

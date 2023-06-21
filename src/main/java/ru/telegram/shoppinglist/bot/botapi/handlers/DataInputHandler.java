@@ -17,8 +17,8 @@ import java.util.List;
 
 @Component
 public class DataInputHandler implements InputMessageHandler {
-    private UserDataCache userDataCache;
-    private MainMenuService mainMenuService;
+    private final UserDataCache userDataCache;
+    private final MainMenuService mainMenuService;
 
     public DataInputHandler(UserDataCache userDataCache, MainMenuService mainMenuService) {
         this.userDataCache = userDataCache;
